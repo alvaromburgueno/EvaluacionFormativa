@@ -1,0 +1,85 @@
+import numpy as np
+import os
+from tabulate import tabulate
+
+menup = ['Registrar Trabajador', 'Listar Trabajadores', 'Imprimir Planillas de Sueldo', 'Salir del Programa']
+
+base = np.array([
+    ['Homero Simpson', 'CEO', 1000000, 70000, 120000, 810000]
+])
+
+cargos = ['CEO', 'Desarrollador', 'Analista de datos']
+
+def cls():
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+while True:
+    for ind, opt in enumerate(menup):
+        print(f'{ind + 1}. {opt}')
+    ans = input('Elige una opción:\n')
+    cls()
+
+    if ans == '1':
+        while True:
+            nombre = input("Favor ingresa el nombre del trabajador:\n")
+            if any(nombre == trabajador[0] for trabajador in base):
+                print('Error: Trabajador ya existe!\n')
+                continue
+            if not nombre.replace(' ', '').isalpha():
+                print('Error: Nombre no válido\n')
+                continue
+
+            cargo = input('Ingresa el cargo del trabajador:\n')
+            if not cargo.replace(' ', '').isalpha() or cargo not in cargos:
+                print('Error: Cargo inválido\n')
+                continue
+
+            try:
+                sueldoBruto = int(input("Favor ingresar sueldo bruto\n"))
+            except ValueError:
+                print('Error: Sueldo inválido\n')
+                continue
+
+            descSalud = sueldoBruto * 0.07
+            descAfp = sueldoBruto * 0.12
+            liquido = sueldoBruto - (descSalud + descAfp)
+            new = np.array([nombre, cargo, sueldoBruto, descSalud, descAfp, liquido])
+            base = np.vstack((base, new))
+            print("Trabajador ingresado")
+            break
+
+    elif ans == '2':
+        if base.size == 0:
+            print("No hay trabajadores registrados.\n")
+        else:
+            print("Trabajador\t\tCargo\t\tSueldo Bruto\t\tDesc. Salud\t\tDesc. AFP\t\tLiquido Pagar")
+            for trabajador in base:
+                col=["Trabajado","Cargo","Sueldo Bruto","Desc. Salud","Desc. AFP","Liquido Pagar"]
+                print(tabulate(base, headers=col, tablefmt="grid"))
+    elif ans == '3':
+        print("Imprimir todos los sueldos PRESS 1")
+        print("Imprimir sueldos de un CEO PRESS 2\n")
+        try:
+            op = int(input())
+        except ValueError:
+            print("Opción inválida")
+            continue
+
+        if op == 1:
+            for trabajador in base:
+                col=["Trabajado","Cargo","Sueldo Bruto","Desc. Salud","Desc. AFP","Liquido Pagar"]
+                print(tabulate(base, headers=col, tablefmt="grid"))
+        elif op == 2:
+            cargoBusca = input("Ingresa cargo a buscar: ")
+            if cargoBusca in cargos:
+                columna = 1
+                valorCoincidir = cargoBusca
+                filtrados = base[base[:, columna] == valorCoincidir]
+                for trabajador in base:
+                    col=["Trabajado","Cargo","Sueldo Bruto","Desc. Salud","Desc. AFP","Liquido Pagar"]
+                    print(tabulate(base, headers=col, tablefmt="grid"))
+    elif ans == '4':
+        print("Saliendo del programa...")
+        break
+    else:
+        print("Opción inválida")
